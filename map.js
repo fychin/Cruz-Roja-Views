@@ -20,27 +20,34 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=p
 // Add hospital marker.
 L.marker([32.506787, -116.963839], {icon: hospitalIcon}).addTo(mymap);
 
-// Add ambulance markers.
-var ambulanceA = L.marker([32.507443, -116.965987], {icon: ambulanceIcon}).addTo(mymap).on('mouseover', function(e){
-	this.bindPopup("<strong>Ambulance A</strong><p>Standby</p>");
-	this.openPopup().on('mouseout', function(e){
-		this.closePopup();
-	});
-});
-L.marker([32.506827, -116.962798], {icon: ambulanceIcon}).addTo(mymap).on('mouseover', function(e){
-	this.bindPopup("<strong>Ambulance B</strong><p>Standby</p>");
-	this.openPopup().on('mouseout', function(e){
-		this.closePopup();
-	});
-});
-L.marker([32.504333, -116.965169], {icon: ambulanceIcon}).addTo(mymap).on('mouseover', function(e){
-	this.bindPopup("<strong>Ambulance C</strong><p>On Duty</p>");
-	this.openPopup().on('mouseout', function(e){
-		this.closePopup();
-	});
-});
 
+var ambulanceMarkers = {};
+var ambulanceData = [{"id":"1", "lat":"32.507443", "lon":"-116.965987"}, {"id":"2", "lat":"32.506827", "lon":"-116.962798"}, {"id":"3", "lat":"32.504333", "lon":"-116.965169"}];
+
+// Add ambulance markers.
+for (var i = 0; i < ambulanceData.length; ++i) {
+	var currentAmbulance = ambulanceData[i];
+	ambulanceMarkers[currentAmbulance.id] = L.marker([currentAmbulance.lat, currentAmbulance.lon], {icon: ambulanceIcon})
+		.bindPopup("<strong>Ambulance " + currentAmbulance.id + "</strong><br/>Standby").addTo(mymap);
+	// Bind id to icon
+	ambulanceMarkers[currentAmbulance.id]._icon.id = currentAmbulance.id;
+	// Collapse panel on icon hover.
+	ambulanceMarkers[currentAmbulance.id].on('mouseover', function(e){
+		$('#collapse' + this._icon.id).collapse('show');
+		this.openPopup().on('mouseout', function(e){
+			$('#collapse' + this._icon.id).collapse('hide');
+			this.closePopup();
+		});
+	});
+}
+
+// Open popup on panel hover.
 $('.ambulance-panel').click(function(){
 	var id = $(this).attr('id');
-	alert(id);
+	// Open popup for 2.5 seconds.
+	//alert(ambulanceMarkers[id]._icon.id);
+	ambulanceMarkers[id].openPopup();
+	setTimeout(function(){
+		ambulanceMarkers[id].closePopup();
+	}, 2500);
 });
