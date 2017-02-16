@@ -22,24 +22,30 @@ L.marker([32.506787, -116.963839], {icon: hospitalIcon}).addTo(mymap);
 
 
 var ambulanceMarkers = {};
-var ambulanceData = [{"id":"1", "lat":"32.507443", "lon":"-116.965987"}, {"id":"2", "lat":"32.506827", "lon":"-116.962798"}, {"id":"3", "lat":"32.504333", "lon":"-116.965169"}];
+var ambulanceData = [];
 
-// Add ambulance markers.
-for (var i = 0; i < ambulanceData.length; ++i) {
-	var currentAmbulance = ambulanceData[i];
-	ambulanceMarkers[currentAmbulance.id] = L.marker([currentAmbulance.lat, currentAmbulance.lon], {icon: ambulanceIcon})
-		.bindPopup("<strong>Ambulance " + currentAmbulance.id + "</strong><br/>Standby").addTo(mymap);
-	// Bind id to icon
-	ambulanceMarkers[currentAmbulance.id]._icon.id = currentAmbulance.id;
-	// Collapse panel on icon hover.
-	ambulanceMarkers[currentAmbulance.id].on('mouseover', function(e){
-		$('#collapse' + this._icon.id).collapse('show');
-		this.openPopup().on('mouseout', function(e){
-			$('#collapse' + this._icon.id).collapse('hide');
-			this.closePopup();
+$.ajax({
+	type: 'GET',
+	url: 'https://yangf96.github.io/JSON-test/ambulances.json',
+	success: function(arr) {
+		$.each(arr, function(index, item) {
+			console.log(item.id)
+			ambulanceMarkers[item.id] = L.marker([item.lat, item.lon], {icon: ambulanceIcon})
+			.bindPopup("<strong>Ambulance " + item.id + "</strong><br/>Standby").addTo(mymap);
+			// Bind id to icon
+			ambulanceMarkers[item.id]._icon.id = item.id;
+			// Collapse panel on icon hover.
+			ambulanceMarkers[item.id].on('mouseover', function(e){
+				$('#collapse' + this._icon.id).collapse('show');
+				this.openPopup().on('mouseout', function(e){
+					$('#collapse' + this._icon.id).collapse('hide');
+					this.closePopup();
+				});
+			});
+
 		});
-	});
-}
+	}
+});
 
 // Open popup on panel hover.
 $('.ambulance-panel').click(function(){
