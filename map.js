@@ -57,7 +57,7 @@ $(document).ready(function() {
 	});
 
 	window.setInterval(function() {
-		AjaxReq(ambulanceMarkers, ajaxUrl);
+		AjaxReq(ambulanceMarkers, ajaxUrl, ambulanceIcon, mymap);
 	}, 1000);
 
 
@@ -72,7 +72,7 @@ $(document).ready(function() {
 	});
 });
 
-function AjaxReq(ambulanceMarkers, ajaxUrl) {
+function AjaxReq(ambulanceMarkers, ajaxUrl, ambulanceIcon, mymap) {
 	console.log('ajax request sent');
 	console.log(ajaxUrl);
 	$.ajax({
@@ -80,7 +80,21 @@ function AjaxReq(ambulanceMarkers, ajaxUrl) {
 		url: ajaxUrl,
 		success: function(arr) {
 			$.each(arr, function (index, item) {
-				//console.log(ambulanceMarkers[item.id]);
+				// Create new ambulance markers if new ambulances are added
+				if(typeof ambulanceMarkers[item.id] == 'undefined'){
+					ambulanceMarkers[item.id] = L.marker([item.lat, item.lon], {icon: ambulanceIcon})
+					.bindPopup("<strong>Ambulance " + item.id + "</strong><br/>" + item.status).addTo(mymap);
+					// Bind id to icon
+					ambulanceMarkers[item.id]._icon.id = item.id;
+					// Collapse panel on icon hover.
+					ambulanceMarkers[item.id].on('mouseover', function(e){
+						$('#collapse' + this._icon.id).collapse('show');
+						this.openPopup().on('mouseout', function(e){
+							$('#collapse' + this._icon.id).collapse('hide');
+							this.closePopup();
+						});
+					});  
+				}
 				// Update ambulance location
 				ambulanceMarkers[item.id] = ambulanceMarkers[item.id].setLatLng([item.lat, item.lon]).update();
 			});
