@@ -97,6 +97,7 @@ function AjaxReq(ambulanceMarkers, ajaxUrl, ambulanceIcon, mymap) {
 				}
 				// Update ambulance location
 				ambulanceMarkers[item.id] = ambulanceMarkers[item.id].setLatLng([item.lat, item.lon]).update();
+				ambulanceMarkers[item.id]._popup.setContent("<strong>Ambulance " + item.id + "</strong><br/>" + item.status);
 			});
 		}
 	});
